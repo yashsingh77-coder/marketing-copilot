@@ -7,7 +7,7 @@ Your instinct (Pillars + Ideas → Calendar → Competitors → Performance → 
 3. **Competitor Snapshot after Voice.** Reliable local competitor data is the flakiest piece (scraping/ToS, no official Instagram search API). Ship it as "Google Places + LLM analysis of their public web presence" first, deepen later.
 
 ## Phase 0 — Foundation (this scaffold) ✅
-- Next.js + Tailwind v4 + Framer Motion, design tokens, fonts
+- Next.js 16 + Tailwind v4 + Framer Motion, design tokens, fonts
 - Supabase schema, RLS, seed (lessons + badges), auth plumbing
 - AI schemas (Zod) for pillars/briefs/competitors/insights
 

@@ -8,7 +8,7 @@ A marketing companion for small business owners with zero marketing experience. 
 
 ## Stack
 
-Next.js 15 (App Router) · Tailwind CSS v4 · Framer Motion · Supabase (Postgres, Auth, Storage) · Vercel AI SDK + Anthropic · Deepgram Nova-3 · Meta Graph API · Vercel
+Next.js 16 (App Router) · Tailwind CSS v4 · Framer Motion · Supabase (Postgres, Auth, Storage) · Vercel AI SDK + Anthropic · Deepgram Nova-3 · Meta Graph API · Vercel
 
 ## First-time setup (macOS)
 
