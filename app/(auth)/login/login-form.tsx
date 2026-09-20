@@ -9,7 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Gyan, GyanSays } from "@/components/mascot/gyan";
 
-export function LoginForm({ next, initialError }: { next: string; initialError?: string }) {
+export function LoginForm({
+  next,
+  initialError,
+  googleEnabled = false,
+}: {
+  next: string;
+  initialError?: string;
+  googleEnabled?: boolean;
+}) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent" | "google">("idle");
   const [error, setError] = useState<string | null>(
@@ -91,16 +99,20 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
         </Button>
       </form>
 
-      <div className="flex items-center gap-3 text-sm font-bold text-ink-soft">
-        <span className="h-0.5 flex-1 bg-ink/20" />
-        or
-        <span className="h-0.5 flex-1 bg-ink/20" />
-      </div>
+      {googleEnabled && (
+        <>
+          <div className="flex items-center gap-3 text-sm font-bold text-ink-soft">
+            <span className="h-0.5 flex-1 bg-ink/20" />
+            or
+            <span className="h-0.5 flex-1 bg-ink/20" />
+          </div>
 
-      <Button variant="secondary" size="lg" fullWidth onClick={signInWithGoogle} loading={state === "google"}>
-        <GoogleMark />
-        Continue with Google
-      </Button>
+          <Button variant="secondary" size="lg" fullWidth onClick={signInWithGoogle} loading={state === "google"}>
+            <GoogleMark />
+            Continue with Google
+          </Button>
+        </>
+      )}
 
       <motion.p
         initial={{ opacity: 0 }}

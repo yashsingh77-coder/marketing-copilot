@@ -87,6 +87,7 @@ export async function generateBrief(
   });
 
   const { best_time_hint, ...fields } = result;
+  fields.hashtags = normalizeHashtags(fields.hashtags);
 
   const { data, error } = await supabase
     .from("post_briefs")
@@ -107,6 +108,19 @@ export async function generateBrief(
   if (error) throw new Error(error.message);
 
   return { brief: data as PostBriefRow, best_time_hint };
+}
+
+/** Models occasionally drop the '#' or add spaces; make tags paste-ready. */
+function normalizeHashtags<T extends { local: string[]; niche: string[]; broad: string[] }>(tags: T): T {
+  const clean = (arr: string[]) =>
+    Array.from(
+      new Set(
+        arr
+          .map((t) => "#" + t.trim().replace(/^#+/, "").replace(/\s+/g, ""))
+          .filter((t) => t.length > 1),
+      ),
+    );
+  return { ...tags, local: clean(tags.local), niche: clean(tags.niche), broad: clean(tags.broad) };
 }
 
 /** Rewrites only the caption + CTA in another language. */

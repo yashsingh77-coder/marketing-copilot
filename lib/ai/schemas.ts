@@ -12,61 +12,61 @@ export const PillarColor = z.enum(["mint", "sky", "lemon", "lilac", "blush"]);
 
 // ─── Content Pillar Engine ────────────────────────────────────────────────
 export const PillarSchema = z.object({
-  name: z.string().max(40).describe("Short, memorable pillar name, e.g. 'Behind the Counter'"),
+  name: z.string().max(60).describe("Short, memorable pillar name, e.g. 'Behind the Counter'"),
   emoji: z.string().max(4),
   description: z
     .string()
-    .max(160)
+    .max(400)
     .describe("One line explaining why this pillar works for THIS business and audience"),
   weight: z.number().int().min(5).max(60).describe("Suggested % of the feed"),
   color: PillarColor,
-  example_ideas: z.array(z.string().max(80)).min(2).max(4),
+  example_ideas: z.array(z.string().max(300)).min(2).max(5),
 });
 
 export const PillarSetSchema = z.object({
   pillars: z.array(PillarSchema).min(4).max(6),
-  rationale: z.string().max(300).describe("2-sentence explanation to show the owner"),
+  rationale: z.string().max(800).describe("2-sentence explanation to show the owner"),
 });
 export type PillarSet = z.infer<typeof PillarSetSchema>;
 
 // ─── Content Idea + Format Generator ──────────────────────────────────────
 export const HashtagTiersSchema = z.object({
-  local: z.array(z.string().regex(/^#\S+$/)).min(2).max(5).describe("City/area/neighbourhood tags"),
-  niche: z.array(z.string().regex(/^#\S+$/)).min(2).max(5).describe("Category-specific community tags"),
-  broad: z.array(z.string().regex(/^#\S+$/)).min(1).max(3).describe("High-volume reach tags"),
+  local: z.array(z.string().min(2)).min(2).max(6).describe("City/area/neighbourhood tags"),
+  niche: z.array(z.string().min(2)).min(2).max(6).describe("Category-specific community tags"),
+  broad: z.array(z.string().min(2)).min(1).max(4).describe("High-volume reach tags"),
 });
 
 export const PostBriefSchema = z.object({
-  title: z.string().max(60).describe("Internal title shown on the calendar"),
+  title: z.string().max(120).describe("Internal title shown on the calendar"),
   format: PostFormat,
   visual_concept: z
     .string()
-    .max(400)
+    .max(2000)
     .describe("Exactly what to shoot/design: subject, angle, lighting, props, on-screen text. Slides for carousels, shot list for reels."),
-  caption: z.string().max(1200),
+  caption: z.string().max(2200),
   caption_language: CaptionLanguage,
-  cta: z.string().max(80).describe("One clear ask at the end of the caption"),
+  cta: z.string().max(200).describe("One clear ask at the end of the caption"),
   hashtags: HashtagTiersSchema,
   best_time_hint: z
     .string()
-    .max(80)
+    .max(200)
     .optional()
     .describe("e.g. 'Weekday evening, 7-8 PM — office crowd scrolls after work'"),
 });
 export type PostBrief = z.infer<typeof PostBriefSchema>;
 
 export const CaptionSchema = z.object({
-  caption: z.string().max(1200),
-  cta: z.string().max(80),
+  caption: z.string().max(2200),
+  cta: z.string().max(200),
 });
 
 export const HookAlternativesSchema = z.object({
-  hooks: z.array(z.string().max(120)).length(3),
+  hooks: z.array(z.string().max(200)).length(3),
 });
 
 // ─── Voice/Video-to-Post ──────────────────────────────────────────────────
 export const TranscriptToBriefSchema = PostBriefSchema.extend({
-  summary: z.string().max(200).describe("What the owner said, in one sentence"),
+  summary: z.string().max(400).describe("What the owner said, in one sentence"),
   detected_intent: z
     .enum(["announcement", "offer", "behind_the_scenes", "story", "other"])
     .describe("What kind of moment this is"),
@@ -76,19 +76,19 @@ export const TranscriptToBriefSchema = PostBriefSchema.extend({
 export const CompetitorAnalysisSchema = z.object({
   pillars: z.array(z.object({ name: z.string().max(40), share: z.number().min(0).max(100) })).max(6),
   formats: z.array(z.object({ format: PostFormat, share: z.number().min(0).max(100) })).max(4),
-  posting_cadence: z.string().max(60),
-  tone: z.string().max(60),
-  notes: z.string().max(300),
+  posting_cadence: z.string().max(120),
+  tone: z.string().max(120),
+  notes: z.string().max(600),
 });
 
 export const CompetitorReportSchema = z.object({
-  summary: z.string().max(400),
+  summary: z.string().max(900),
   gaps: z
     .array(
       z.object({
-        gap: z.string().max(80),
-        why: z.string().max(200),
-        suggested_pillar: z.string().max(40),
+        gap: z.string().max(160),
+        why: z.string().max(400),
+        suggested_pillar: z.string().max(60),
       }),
     )
     .min(2)
@@ -98,8 +98,8 @@ export const CompetitorReportSchema = z.object({
 // ─── Performance insights ─────────────────────────────────────────────────
 export const InsightSchema = z.object({
   kind: z.enum(["format_performance", "best_time", "pillar_performance", "growth"]),
-  headline: z.string().max(90).describe("Plain English, no jargon. e.g. 'Carousels outperform static posts 2:1 this month'"),
-  body: z.string().max(240),
+  headline: z.string().max(160).describe("Plain English, no jargon. e.g. 'Carousels outperform static posts 2:1 this month'"),
+  body: z.string().max(500),
   directive: z
     .object({
       prefer_format: PostFormat.optional(),

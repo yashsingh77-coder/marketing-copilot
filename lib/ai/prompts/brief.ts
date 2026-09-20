@@ -29,6 +29,7 @@ ${language}${hint}${avoid}
 Requirements:
 - visual_concept: describe exactly what to shoot so a non-designer can do it with a phone. For carousels, list each slide. For reels, give a 3-5 shot list with approximate seconds.
 - caption: hook in the first line (under 8 words), then 2-4 short lines, then the CTA. Match the voice and emoji level.
-- hashtags: local tags must reference the actual area/city. Niche tags must be category-specific. Broad tags: only 1-3.
+- hashtags: every tag starts with '#', no spaces. Local tags must reference the actual area/city. Niche tags must be category-specific. Broad tags: only 1-3.
+- title: under 10 words. cta: one short sentence.
 - best_time_hint: base it on the audience (students → late evening, office crowd → lunch/after work, families → weekend morning).`;
 }

@@ -14,7 +14,11 @@ export default async function LoginPage({
         <p className="font-display text-lg font-bold text-primary">Marketing Co-Pilot</p>
         <h1 className="text-4xl">Let&apos;s get you in</h1>
       </div>
-      <LoginForm next={safeNext} initialError={error} />
+      <LoginForm
+        next={safeNext}
+        initialError={error}
+        googleEnabled={process.env.NEXT_PUBLIC_AUTH_GOOGLE === "true"}
+      />
     </main>
   );
 }

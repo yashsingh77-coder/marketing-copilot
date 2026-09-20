@@ -6,7 +6,7 @@ import type { z } from "zod";
  * Single place to swap the LLM provider. Every generator imports `model` from here.
  * To use OpenAI: `import { openai } from "@ai-sdk/openai"` and return `openai(process.env.AI_MODEL)`.
  */
-export const model = anthropic(process.env.AI_MODEL ?? "claude-sonnet-4-5");
+export const model = anthropic(process.env.AI_MODEL ?? "claude-sonnet-4-6");
 
 /** Thin wrapper over AI SDK 7's structured output so every generator reads the same. */
 export async function generateStructured<T extends z.ZodTypeAny>(input: {

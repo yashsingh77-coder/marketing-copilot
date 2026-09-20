@@ -6,6 +6,7 @@ Rules:
 - At least one pillar must feature people (team or customers).
 - Weights must sum to roughly 100.
 - Assign each pillar a distinct color from: mint, sky, lemon, lilac, blush.
-- example_ideas should be concrete post ideas, not categories.
+- example_ideas should be concrete post ideas, not categories — each under 20 words.
+- description: one sentence, under 25 words.
 
-Explain the set in 2 warm sentences the owner will read.`;
+Explain the set in 2 warm sentences the owner will read (under 60 words total).`;
