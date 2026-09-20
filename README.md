@@ -1,5 +1,7 @@
 # Marketing Co-Pilot
 
+**Live:** https://marketing-copilot-seven.vercel.app · **Repo:** github.com/yashsingh77-coder/marketing-copilot
+
 A marketing companion for small business owners with zero marketing experience. Generates content pillars, post briefs, and a calendar; turns voice notes into posts; tracks Instagram performance; and teaches marketing through short gamified lessons led by **Gyan the Guru**.
 
 - 📐 [Architecture](docs/ARCHITECTURE.md)
