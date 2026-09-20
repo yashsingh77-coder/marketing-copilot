@@ -29,6 +29,18 @@ export function studioConfigured() {
   return !!process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 }
 
+/** Turn provider errors into something a shop owner can act on. */
+function friendlyImageError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/quota|billing|RESOURCE_EXHAUSTED|limit: 0/i.test(msg)) {
+    return "Image generation isn't enabled on the Google account yet (billing is required for image models). Ask your admin to enable billing in Google AI Studio, then try again.";
+  }
+  if (/429|rate/i.test(msg)) return "Too many requests right now — give it a few seconds and try again.";
+  if (/SAFETY|blocked|PROHIBITED/i.test(msg)) return "The image model declined that request. Try describing the scene differently.";
+  if (/API key|PERMISSION_DENIED|401|403/i.test(msg)) return "The image provider rejected our key. Check GOOGLE_GENERATIVE_AI_API_KEY.";
+  return `Image generation failed: ${msg.slice(0, 160)}`;
+}
+
 /** Brand + platform guardrails prepended to every image prompt. */
 function brandDirection(business: Business) {
   const vibe: Record<string, string> = {
@@ -72,6 +84,7 @@ export async function generateCreative(
   }
 
   const result = await generateText({
+    maxRetries: 1,
     model: google(IMAGE_MODEL),
     prompt: parentBytes
       ? [
@@ -90,6 +103,8 @@ export async function generateCreative(
         imageConfig: { aspectRatio: input.aspect, imageOutputOptions: { mimeType: "image/png" } },
       },
     },
+  }).catch((err: unknown) => {
+    throw new Error(friendlyImageError(err));
   });
 
   const file = result.files.find((f) => f.mediaType.startsWith("image/"));
