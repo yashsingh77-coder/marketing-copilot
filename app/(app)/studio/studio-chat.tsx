@@ -45,17 +45,8 @@ export function StudioChat({
 
   const brief = useMemo(() => briefs.find((b) => b.id === briefId) ?? null, [briefs, briefId]);
 
-  // Read the latest brief at send time without recreating the transport.
-  const briefIdRef = useRef(briefId);
-  useEffect(() => {
-    briefIdRef.current = briefId;
-  }, [briefId]);
   const [transport] = useState(
-    () =>
-      new DefaultChatTransport({
-        api: "/api/studio/chat",
-        body: () => ({ briefId: briefIdRef.current, threadId }),
-      }),
+    () => new DefaultChatTransport({ api: "/api/studio/chat", body: { threadId } }),
   );
 
   const { messages, sendMessage, status, error } = useChat({
@@ -74,7 +65,8 @@ export function StudioChat({
     const t = text.trim();
     if (!t || busy) return;
     const prefix = refining ? `Tweak the creative with id ${refining.id}: ` : "";
-    sendMessage({ text: prefix + t });
+    // briefId is sent per message so switching briefs mid-thread just works.
+    sendMessage({ text: prefix + t }, { body: { briefId } });
     setInput("");
     setRefining(null);
   }
