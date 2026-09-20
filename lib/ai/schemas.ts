@@ -55,6 +55,11 @@ export const PostBriefSchema = z.object({
 });
 export type PostBrief = z.infer<typeof PostBriefSchema>;
 
+export const CaptionSchema = z.object({
+  caption: z.string().max(1200),
+  cta: z.string().max(80),
+});
+
 export const HookAlternativesSchema = z.object({
   hooks: z.array(z.string().max(120)).length(3),
 });

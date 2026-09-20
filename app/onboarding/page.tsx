@@ -1,10 +1,22 @@
-// Phase 1: 5-step wizard → businesses row → /api/ai/pillars → dashboard.
-// Screen spec: docs/DESIGN.md §2A
-export default function OnboardingPage() {
-  return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center p-6">
-      <h1 className="text-3xl">Let&apos;s set you up</h1>
-      <p className="mt-2 text-ink-soft">Onboarding wizard — coming in Phase 1.</p>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentBusiness } from "@/lib/data/business";
+import { OnboardingWizard } from "./wizard";
+
+export default async function OnboardingPage() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/onboarding");
+
+  const business = await getCurrentBusiness(supabase);
+  if (business?.onboarding_completed_at) redirect("/dashboard");
+
+  const displayName =
+    (user.user_metadata?.full_name as string | undefined) ??
+    (user.user_metadata?.name as string | undefined) ??
+    null;
+
+  return <OnboardingWizard displayName={displayName} />;
 }

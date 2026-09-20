@@ -1,16 +1,10 @@
 import { NextResponse } from "next/server";
-import { generateStructured, PROMPT_VERSION } from "@/lib/ai/client";
-import { PostBriefSchema, BusinessContextSchema } from "@/lib/ai/schemas";
-import { systemPrompt } from "@/lib/ai/prompts/system";
-import { briefPrompt } from "@/lib/ai/prompts/brief";
 import { createClient } from "@/lib/supabase/server";
+import { generateBrief } from "@/lib/ai/generators";
 
 export const maxDuration = 60;
 
-/**
- * POST /api/ai/brief  { businessId, pillarId, format?, language?, hint? }
- * Generates one post brief and saves it with status 'idea'.
- */
+/** POST /api/ai/brief  { businessId, pillarId, format?, language?, hint? } */
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
@@ -20,53 +14,16 @@ export async function POST(request: Request) {
 
   const { businessId, pillarId, format, language, hint } = await request.json();
 
-  const [{ data: business }, { data: pillar }, { data: insights }, { data: recent }] =
-    await Promise.all([
-      supabase.from("businesses").select("*").eq("id", businessId).single(),
-      supabase.from("content_pillars").select("*").eq("id", pillarId).single(),
-      supabase.from("insights").select("directive").eq("business_id", businessId).eq("is_active", true),
-      supabase
-        .from("post_briefs")
-        .select("title")
-        .eq("business_id", businessId)
-        .order("created_at", { ascending: false })
-        .limit(10),
-    ]);
-
+  const [{ data: business }, { data: pillar }] = await Promise.all([
+    supabase.from("businesses").select("*").eq("id", businessId).single(),
+    supabase.from("content_pillars").select("*").eq("id", pillarId).single(),
+  ]);
   if (!business || !pillar) return NextResponse.json({ error: "not found" }, { status: 404 });
 
-  const ctx = BusinessContextSchema.parse({
-    ...business,
-    active_insights: (insights ?? []).map((i) => i.directive),
-  });
-
-  const object = await generateStructured({
-    schema: PostBriefSchema,
-    instructions: systemPrompt(ctx),
-    prompt: briefPrompt({
-      pillar,
-      format,
-      language,
-      hint,
-      recentTitles: (recent ?? []).map((r) => r.title),
-    }),
-  });
-
-  const { best_time_hint, ...briefFields } = object;
-
-  const { data: brief, error } = await supabase
-    .from("post_briefs")
-    .insert({
-      business_id: businessId,
-      pillar_id: pillarId,
-      ...briefFields,
-      source: "generator",
-      generation_meta: { version: PROMPT_VERSION, best_time_hint, insights_used: ctx.active_insights.length },
-    })
-    .select()
-    .single();
-
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json({ brief, best_time_hint });
+  try {
+    const result = await generateBrief(supabase, { business, pillar, format, language, hint });
+    return NextResponse.json(result);
+  } catch (err) {
+    return NextResponse.json({ error: err instanceof Error ? err.message : "failed" }, { status: 500 });
+  }
 }
