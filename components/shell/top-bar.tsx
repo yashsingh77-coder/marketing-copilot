@@ -1,4 +1,5 @@
-import { Flame, Zap } from "lucide-react";
+import Link from "next/link";
+import { Flame, Zap, UserRound } from "lucide-react";
 import { LEVELS } from "@/types/domain";
 
 type Level = (typeof LEVELS)[number];
@@ -29,10 +30,15 @@ export function TopBar({
 
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between gap-3 bg-cream/90 px-4 py-3 backdrop-blur">
-      <div className="min-w-0">
-        <p className="truncate font-display text-lg font-bold leading-tight">{businessName}</p>
-        <p className="text-xs font-bold text-ink-soft">{current.title}</p>
-      </div>
+      <Link href="/me" className="flex min-w-0 items-center gap-2">
+        <span className="outline-brutal flex size-9 shrink-0 items-center justify-center rounded-full bg-primary text-paper">
+          <UserRound className="size-5" strokeWidth={2.5} />
+        </span>
+        <span className="min-w-0">
+          <span className="block truncate font-display text-lg font-bold leading-tight">{businessName}</span>
+          <span className="block text-xs font-bold text-ink-soft">{current.title}</span>
+        </span>
+      </Link>
       <div className="flex shrink-0 items-center gap-2">
         <span className="outline-brutal shadow-brutal-sm flex h-8 items-center gap-1 rounded-full bg-blush px-2.5 text-sm font-extrabold">
           <Flame className="size-4" strokeWidth={2.5} /> {streak}

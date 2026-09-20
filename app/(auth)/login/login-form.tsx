@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
+import { Mail, KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,23 +14,48 @@ export function LoginForm({
   next,
   initialError,
   googleEnabled = false,
+  otpCodeEnabled = false,
 }: {
   next: string;
   initialError?: string;
   googleEnabled?: boolean;
+  /** True once custom SMTP + email templates include {{ .Token }}. */
+  otpCodeEnabled?: boolean;
 }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "sending" | "sent" | "google">("idle");
+  const [code, setCode] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "sent" | "verifying" | "google">("idle");
   const [error, setError] = useState<string | null>(
-    initialError ? "That sign-in link didn't work. Try again." : null,
+    initialError
+      ? otpCodeEnabled
+        ? "That link didn't work — it may have opened in a different browser. Enter the 6-digit code instead."
+        : "That link didn't work — it may have opened in a different browser. Request a new one and open it in the browser you started from."
+      : null,
   );
+
+  async function verifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setState("verifying");
+    const supabase = createClient();
+    const { error } = await supabase.auth.verifyOtp({ email, token: code.trim(), type: "email" });
+    if (error) {
+      setError(error.message.includes("expired") ? "That code has expired. Request a new one." : "That code didn't match. Check and try again.");
+      setState("sent");
+      return;
+    }
+    router.replace(next);
+    router.refresh();
+  }
 
   const redirectTo = () =>
     `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 
-  async function sendMagicLink(e: React.FormEvent) {
-    e.preventDefault();
+  async function sendMagicLink(e?: React.FormEvent) {
+    e?.preventDefault();
     setError(null);
+    setCode("");
     setState("sending");
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
@@ -58,17 +84,53 @@ export function LoginForm({
     }
   }
 
-  if (state === "sent") {
+  if (state === "sent" || state === "verifying") {
     return (
       <Card color="mint" shadow="lg" className="flex flex-col items-center gap-4 text-center">
-        <Gyan expression="celebrating" size={120} />
+        <Gyan expression="celebrating" size={110} />
         <h2 className="text-2xl">Check your inbox!</h2>
         <p className="font-semibold">
-          We sent a sign-in link to <span className="text-primary">{email}</span>. Tap it on this device.
+          {otpCodeEnabled ? (
+            <>
+              We emailed <span className="text-primary">{email}</span> a 6-digit code and a link. Type the code here, or
+              tap the link on this device.
+            </>
+          ) : (
+            <>
+              We sent a sign-in link to <span className="text-primary">{email}</span>. Open it on this device, in this
+              browser.
+            </>
+          )}
         </p>
-        <Button variant="ghost" size="sm" onClick={() => setState("idle")}>
-          Use a different email
-        </Button>
+        {otpCodeEnabled && (
+        <form onSubmit={verifyCode} className="flex w-full flex-col gap-3">
+          <Input
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="[0-9]{6}"
+            maxLength={6}
+            placeholder="123456"
+            aria-label="6-digit code"
+            className="text-center font-display text-2xl tracking-[0.4em]"
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+            error={error ?? undefined}
+            autoFocus
+          />
+          <Button type="submit" size="lg" fullWidth loading={state === "verifying"} disabled={code.length !== 6}>
+            <KeyRound className="size-5" /> Sign in
+          </Button>
+        </form>
+        )}
+        {!otpCodeEnabled && error && <p className="text-sm font-bold text-secondary">{error}</p>}
+        <div className="flex gap-3">
+          <Button variant="ghost" size="sm" onClick={() => { setState("idle"); setCode(""); setError(null); }}>
+            Different email
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => sendMagicLink()}>
+            Resend
+          </Button>
+        </div>
       </Card>
     );
   }

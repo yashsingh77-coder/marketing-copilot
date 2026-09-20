@@ -15,6 +15,8 @@ export async function getCurrentBusiness(supabase: Db): Promise<Business | null>
     .from("businesses")
     .select("*")
     .eq("owner_id", user.id)
+    // A completed business always wins over an abandoned onboarding attempt.
+    .order("onboarding_completed_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();

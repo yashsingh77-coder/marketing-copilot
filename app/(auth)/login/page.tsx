@@ -18,6 +18,7 @@ export default async function LoginPage({
         next={safeNext}
         initialError={error}
         googleEnabled={process.env.NEXT_PUBLIC_AUTH_GOOGLE === "true"}
+        otpCodeEnabled={process.env.NEXT_PUBLIC_AUTH_OTP_CODE === "true"}
       />
     </main>
   );

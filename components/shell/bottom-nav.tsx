@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Home, Lightbulb, CalendarDays, GraduationCap, User } from "lucide-react";
+import { Home, Lightbulb, Palette, CalendarDays, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS = [
   { href: "/dashboard", label: "Today", icon: Home },
   { href: "/ideas", label: "Ideas", icon: Lightbulb },
+  { href: "/studio", label: "Studio", icon: Palette },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/school", label: "School", icon: GraduationCap },
-  { href: "/me", label: "Me", icon: User },
 ];
 
 export function BottomNav() {

@@ -27,28 +27,38 @@ export async function completeOnboarding(raw: OnboardingInput): Promise<Onboardi
     weeklyHours: input.weekly_hours,
   });
 
-  const { data: business, error } = await supabase
+  const values = {
+    owner_id: user.id,
+    name: input.name,
+    category: input.category,
+    sub_niche: input.sub_niche,
+    city: input.city,
+    area: input.area,
+    audience: { age_groups: input.age_groups, interests: input.interests },
+    tone: {
+      voice: input.voice,
+      languages: input.hinglish ? ["en", "hi"] : ["en"],
+      hinglish: input.hinglish,
+      emoji: input.voice === "premium" ? "none" : "some",
+    },
+    weekly_hours: input.weekly_hours,
+    monthly_budget_inr: input.monthly_budget_inr,
+    suggested_times,
+  };
+
+  // Reuse an incomplete business (e.g. pillar generation failed last time) instead of creating duplicates.
+  const { data: existing } = await supabase
     .from("businesses")
-    .insert({
-      owner_id: user.id,
-      name: input.name,
-      category: input.category,
-      sub_niche: input.sub_niche,
-      city: input.city,
-      area: input.area,
-      audience: { age_groups: input.age_groups, interests: input.interests },
-      tone: {
-        voice: input.voice,
-        languages: input.hinglish ? ["en", "hi"] : ["en"],
-        hinglish: input.hinglish,
-        emoji: input.voice === "premium" ? "none" : "some",
-      },
-      weekly_hours: input.weekly_hours,
-      monthly_budget_inr: input.monthly_budget_inr,
-      suggested_times,
-    })
-    .select()
-    .single();
+    .select("id")
+    .eq("owner_id", user.id)
+    .is("onboarding_completed_at", null)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const { data: business, error } = existing
+    ? await supabase.from("businesses").update(values).eq("id", existing.id).select().single()
+    : await supabase.from("businesses").insert(values).select().single();
 
   if (error || !business) return { ok: false, error: error?.message ?? "Could not save your business." };
 

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
-import { CalendarPlus, Check, Copy, Trash2, Clock } from "lucide-react";
+import { CalendarPlus, Check, Copy, Trash2, Clock, Palette } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Chip, Sticker } from "@/components/ui/chip";
@@ -195,7 +195,7 @@ export function BriefCard({
       {error && <p className="mx-4 mb-3 text-sm font-bold text-secondary">{error}</p>}
 
       {/* Actions */}
-      <div className="flex items-center gap-2 border-t-[2.5px] border-ink bg-cream p-3">
+      <div className="flex flex-wrap items-center gap-2 border-t-[2.5px] border-ink bg-cream p-3">
         {scheduling ? (
           <form
             className="flex flex-1 items-center gap-2"
@@ -224,6 +224,9 @@ export function BriefCard({
             <Button size="sm" variant={brief.scheduled_for ? "secondary" : "primary"} onClick={() => setScheduling(true)}>
               <CalendarPlus className="size-4" />
               {brief.scheduled_for ? "Reschedule" : "Add to calendar"}
+            </Button>
+            <Button size="sm" variant="lemon" href={`/studio?brief=${brief.id}`}>
+              <Palette className="size-4" /> Make creative
             </Button>
             <Button size="sm" variant="secondary" onClick={() => copy(`${brief.title}\n\nSHOOT:\n${brief.visual_concept}\n\nCAPTION:\n${brief.caption}\n\n${allTags.join(" ")}`, "all")}>
               {copied === "all" ? <Check className="size-4" /> : <Copy className="size-4" />}
