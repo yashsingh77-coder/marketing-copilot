@@ -47,14 +47,15 @@ export function StudioChat({
 
   // Read the latest brief at send time without recreating the transport.
   const briefIdRef = useRef(briefId);
-  briefIdRef.current = briefId;
-  const transport = useMemo(
+  useEffect(() => {
+    briefIdRef.current = briefId;
+  }, [briefId]);
+  const [transport] = useState(
     () =>
       new DefaultChatTransport({
         api: "/api/studio/chat",
         body: () => ({ briefId: briefIdRef.current, threadId }),
       }),
-    [threadId],
   );
 
   const { messages, sendMessage, status, error } = useChat({
